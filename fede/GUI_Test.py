@@ -1,4 +1,4 @@
-from parapy.geom import Cube
+from parapy.geom import Cube, Solid
 import os
 from parapy.webgui import layout, mui, viewer
 from parapy.webgui.app_bar import AppBar
@@ -114,25 +114,40 @@ class InputsPanel(Component):
         Aera.wing_dihedral = new_value
 
     def download_step(self, evt):
-        writer = STEPWriter([Aera.fuselage,
-                             Aera.left_wing,
-                             Aera.right_wing,
-                             Aera.h_tail_left,
-                             Aera.h_tail_right,
-                             Aera.left_boom,
-                             Aera.right_boom,
-                             Aera.left_forward_propeller,
-                             Aera.right_forward_propeller,
-                             Aera.left_rear_propeller,
-                             Aera.right_rear_propeller,
-                             Aera.vert_tail,
-                             Aera.pushing_propeller,
-                             ])
 
+        #'''
+        writer = STEPWriter([Aera.fuselage.middle_fus,
+                             Aera.left_wing, Aera.right_wing,
+                             Aera.h_tail_left, Aera.h_tail_right,
+                             Aera.left_boom, Aera.right_boom,
+                             Aera.left_forward_propeller.rotor, Aera.left_forward_propeller.prop_blades,
+                             Aera.right_forward_propeller.rotor, Aera.right_forward_propeller.prop_blades,
+                             Aera.left_rear_propeller.rotor, Aera.left_rear_propeller.prop_blades,
+                             Aera.right_rear_propeller.rotor, Aera.right_rear_propeller.prop_blades,
+
+                             Aera.pushing_propeller.rotor, Aera.pushing_propeller.prop_blades,
+                             Aera.left_lifting_lg, Aera.right_lifting_lg,
+
+
+                             ])
+        #'''
+
+        # This second option looks at all the tree and outputs the writable objects
+        writer2 = STEPWriter(
+            trees=[Aera],  # <-- give it the top-level Base
+            schema="AP214IS",  # optional, you can choose another STEP schema here
+            unit="MM",  # optional, default is millimeters
+            color_mode=True,  # optional, include colors
+            layer_mode=True,  # optional, include layer info
+            name_mode=True,  # optional, include names
+        )
+
+
+        print("Prop is a", type(Aera.fuselage.middle_fus))
         assets_dir = get_assets_dir()
         filename = os.path.join(assets_dir, 'convAera_solid.step')
 
-        writer.write(filename)
+        writer2.write(filename)
         url = get_asset_url(filename)
         download_file(url)
 

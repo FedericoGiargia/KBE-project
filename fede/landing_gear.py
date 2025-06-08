@@ -52,7 +52,9 @@ class LiftingLandingGear(GeomBase):
                            mesh_deflection=self.mesh_deflection,
                            hidden= True)
 
-    @Part
+
+    # Originally Part but now attribute so it is not in the final STEP export
+    @Attribute
     def cutting_box(self):
         return Box(height=self.box_height,
                  length = self.box_height,
