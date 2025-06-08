@@ -126,7 +126,7 @@ class InputsPanel(Component):
                              Aera.left_rear_propeller,
                              Aera.right_rear_propeller,
                              Aera.vert_tail,
-                             Aera.pushing_propeller
+                             Aera.pushing_propeller,
                              ])
 
         assets_dir = get_assets_dir()
@@ -146,5 +146,5 @@ if __name__ == "__main__":
     reload ensures that all the changes can be seen in the webpage without re-establishing connections
     assets_dir is where all the generated files will be stored
     '''
-    display(App, reload=True, assets_dir='/KBEProject/Global_KBE/fede/assets_convAera')
+    display(App, reload=True, assets_dir="C:/Users/Usuario/PycharmProjects/KBEProject/Global_KBE/fede/assets_convAera")
 
