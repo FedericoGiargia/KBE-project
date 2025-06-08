@@ -1,9 +1,9 @@
 from parapy.geom import Cube
-
+import os
 from parapy.webgui import layout, mui, viewer
 from parapy.webgui.app_bar import AppBar
-from parapy.webgui.core import Component, NodeType, State, VState
-
+from parapy.webgui.core import Component, NodeType, State, VState, get_assets_dir, get_asset_url
+from parapy.webgui.core.actions import download_file
 from parapy.exchange import STEPWriter
 
 from fede.convAera import Aircraft
@@ -91,22 +91,60 @@ class InputsPanel(Component):
             mui.TextField(value=Aera.rotor_radius, label='Rotor Radius'),
             mui.Typography("Wing Dihedral (°)"),
             mui.Slider(value=self.value,
-                   onChange=self.handle_change,
+                       onChange=self.handle_change,
                        marks=self.marks,
                        min=-10,
                        max=20,
-
-           valueLabelDisplay='auto',
+                       valueLabelDisplay='auto',
                        label='Wing Dihedral'),
+            mui.Button(onClick=self.on_click, variant="outlined")["Update wing dihedral"],
+            mui.Button(variant='contained',
+                       onClick=self.download_step)["Download .STEP file"]
 
 
         ],
 
     def handle_change(self, evt, new_value, *args) -> None:
         self.value = new_value
+        #Aera.wing_dihedral = new_value # If this line is active the model will update as soon as the slider is moved
+
+
+    def on_click(self, evt):
+        new_value = self.value
         Aera.wing_dihedral = new_value
+
+    def download_step(self, evt):
+        writer = STEPWriter([Aera.fuselage,
+                             Aera.left_wing,
+                             Aera.right_wing,
+                             Aera.h_tail_left,
+                             Aera.h_tail_right,
+                             Aera.left_boom,
+                             Aera.right_boom,
+                             Aera.left_forward_propeller,
+                             Aera.right_forward_propeller,
+                             Aera.left_rear_propeller,
+                             Aera.right_rear_propeller,
+                             Aera.vert_tail,
+                             Aera.pushing_propeller
+                             ])
+
+        assets_dir = get_assets_dir()
+        filename = os.path.join(assets_dir, 'convAera_solid.step')
+
+        writer.write(filename)
+        url = get_asset_url(filename)
+        download_file(url)
+
+
 
 
 if __name__ == "__main__":
     from parapy.webgui.core import display
-    display(App, reload=True)
+    '''
+    Displays the application defined previously (App)
+    reload ensures that all the changes can be seen in the webpage without re-establishing connections
+    assets_dir is where all the generated files will be stored
+    '''
+    display(App, reload=True, assets_dir='/KBEProject/Global_KBE/fede/assets_convAera')
+
