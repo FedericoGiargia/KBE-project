@@ -460,5 +460,5 @@ if __name__ == '__main__':
                    vt_long=0.8, vt_taper=0.4, booms_radius=0.5,
                      booms_length=60,
                      booms_sections = [100, 100, 100, 100, 100],
-                     mesh_deflection=0.0001)
+                   mesh_deflection=0.0001)
     display(ac)

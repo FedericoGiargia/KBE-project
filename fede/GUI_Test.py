@@ -53,7 +53,8 @@ class App(Component):
         )
 
 class InputsPanel(Component):
-    value = State(Aera.wing_dihedral)
+    value = State(Aera.wing_dihedral) # Initial value for a variable configuration
+    download_start = State(False) # State of download for the popup
 
     marks = [
         {
@@ -99,7 +100,7 @@ class InputsPanel(Component):
                        label='Wing Dihedral'),
             mui.Button(onClick=self.on_click, variant="outlined")["Update wing dihedral"],
             mui.Button(variant='contained',
-                       onClick=self.download_step)["Download .STEP file"]
+                       onClick=self.download_step)["Download .STEP file"],
 
 
         ],
@@ -115,41 +116,35 @@ class InputsPanel(Component):
 
     def download_step(self, evt):
 
-        #'''
-        writer = STEPWriter([Aera.fuselage.middle_fus,
-                             Aera.left_wing, Aera.right_wing,
-                             Aera.h_tail_left, Aera.h_tail_right,
-                             Aera.left_boom, Aera.right_boom,
-                             Aera.left_forward_propeller.rotor, Aera.left_forward_propeller.prop_blades,
-                             Aera.right_forward_propeller.rotor, Aera.right_forward_propeller.prop_blades,
-                             Aera.left_rear_propeller.rotor, Aera.left_rear_propeller.prop_blades,
-                             Aera.right_rear_propeller.rotor, Aera.right_rear_propeller.prop_blades,
+        '''
+        Reads the tree from Aera, writes all the parts into a STEP file and then downloads
+        to assets folder.
+        '''
 
-                             Aera.pushing_propeller.rotor, Aera.pushing_propeller.prop_blades,
-                             Aera.left_lifting_lg, Aera.right_lifting_lg,
+        print("downloading")
 
-
-                             ])
-        #'''
+        Aera.mesh_deflection = 0.0001
 
         # This second option looks at all the tree and outputs the writable objects
-        writer2 = STEPWriter(
+        writer = STEPWriter(
             trees=[Aera],  # <-- give it the top-level Base
             schema="AP214IS",  # optional, you can choose another STEP schema here
             unit="MM",  # optional, default is millimeters
-            color_mode=True,  # optional, include colors
+            color_mode=False,  # optional, include colors
             layer_mode=True,  # optional, include layer info
             name_mode=True,  # optional, include names
         )
-
 
         print("Prop is a", type(Aera.fuselage.middle_fus))
         assets_dir = get_assets_dir()
         filename = os.path.join(assets_dir, 'convAera_solid.step')
 
-        writer2.write(filename)
+        writer.write(filename)
         url = get_asset_url(filename)
         download_file(url)
+        Aera.mesh_deflection = 0.01
+        print("Download complete2")
+
 
 
 
