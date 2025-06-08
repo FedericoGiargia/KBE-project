@@ -55,6 +55,7 @@ class App(Component):
 class InputsPanel(Component):
     value = State(Aera.wing_dihedral) # Initial value for a variable configuration
     download_start = State(False) # State of download for the popup
+    download_finish = State(False)
 
     marks = [
         {
@@ -101,9 +102,25 @@ class InputsPanel(Component):
             mui.Button(onClick=self.on_click, variant="outlined")["Update wing dihedral"],
             mui.Button(variant='contained',
                        onClick=self.download_step)["Download .STEP file"],
-
+            mui.Dialog(open=self.download_start)[
+                mui.DialogTitle['Downloading'],
+                mui.DialogContent[
+                    mui.DialogContentText['Writing parts to STEP file.']
+                ]
+            ],
+            mui.Dialog(open=self.download_finish)[
+                mui.DialogTitle['Finished Downloading'],
+                mui.DialogContent[
+                    mui.DialogContentText[f'All the parts have been written to the step file and downloaded to: {get_assets_dir()}']
+                ],
+                mui.DialogActions[
+                    mui.Button(onClick=self.handle_close)['OK']
+                ]
+            ]
 
         ],
+
+
 
     def handle_change(self, evt, new_value, *args) -> None:
         self.value = new_value
@@ -120,7 +137,7 @@ class InputsPanel(Component):
         Reads the tree from Aera, writes all the parts into a STEP file and then downloads
         to assets folder.
         '''
-
+        self.download_start = True
         print("downloading")
 
         Aera.mesh_deflection = 0.0001
@@ -143,10 +160,13 @@ class InputsPanel(Component):
         url = get_asset_url(filename)
         download_file(url)
         Aera.mesh_deflection = 0.01
-        print("Download complete2")
+        self.download_start = False
+        self.download_finish = True
+        print("Download complete")
 
 
-
+    def handle_close(self, evt):
+        self.download_finish = False
 
 
 if __name__ == "__main__":
