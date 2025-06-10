@@ -108,7 +108,7 @@ class Aircraft(GeomBase):
     vt_long: float = Input(0.8)
     vt_taper: float = Input(0.4)
 
-    mesh_deflection: float = Input(1e-4)
+
 
     @Part
     def frame(self):
@@ -240,17 +240,23 @@ class Aircraft(GeomBase):
     @Part
     def right_wing(self):
         return LiftingSurface(
-            pass_down="airfoil_root_name, airfoil_tip_name,"
-                      "t_factor_root, t_factor_tip,"
-                      "sweep, twist",
-            c_root=self.w_c_root,
-            c_tip=self.w_c_tip,
-            sweep = self.sweep,
-            semi_span=self.w_semi_span,
-            inst_angle = self.wing_inst_angle,
-            position=self.wing_position,
-            dihedral = self.wing_dihedral,
-            mesh_deflection=self.mesh_deflection)
+                pass_down="airfoil_root_name, airfoil_tip_name,"
+                          "t_factor_root, t_factor_tip,"
+                          "sweep, twist, name",
+                c_root=self.w_c_root,
+                c_tip=self.w_c_tip,
+                sweep = self.sweep,
+                semi_span=self.w_semi_span,
+                inst_angle = self.wing_inst_angle,
+                position=self.wing_position,
+                dihedral = self.wing_dihedral,
+                mesh_deflection=self.mesh_deflection,
+                is_mirrored=True
+               )
+
+    @Attribute
+    def right_wing_planform_area(self):
+        return (self.w_semi_span * 2) ** 2 / self.right_wing.aspect_ratio
 
     @Part
     def left_wing(self):
@@ -264,6 +270,7 @@ class Aircraft(GeomBase):
     @Part
     def vert_tail(self):
         return LiftingSurface(
+            pass_down="name",
             c_root=self.w_c_root,
             c_tip=self.w_c_root * self.vt_taper,
             airfoil_root_name="b29root",
@@ -274,7 +281,8 @@ class Aircraft(GeomBase):
             sweep=45,
             twist=0,
             position=self.v_tail_position,
-            mesh_deflection=self.mesh_deflection
+            mesh_deflection=self.mesh_deflection,
+            is_mirrored=False
         )
     @Part
     def left_boom(self):
@@ -287,17 +295,18 @@ class Aircraft(GeomBase):
     def right_forward_propeller(self):
         return Propeller(rotor_radius = self.rotor_radius,
                          position = self.right_forward_propeller_position, #this part is the one that changes
-    blade_count = self.blade_count,
-    propeller_radius = self.propeller_radius,
-    propeller_foil_root_name = self.propeller_foil_root_name,
-    propeller_foil_tip_name = self.propeller_foil_tip_name,
-    propeller_c_root = self.propeller_c_root,
-    propeller_c_tip = self.propeller_c_tip,
-    propeller_t_factor_root = self.propeller_t_factor_root,
-    propeller_t_factor_tip = self.propeller_t_factor_tip,
-    propeller_twist = self.propeller_twist,
-    mesh_deflection = self.mesh_deflection
+                        blade_count = self.blade_count,
+                        propeller_radius = self.propeller_radius,
+                        propeller_foil_root_name = self.propeller_foil_root_name,
+                        propeller_foil_tip_name = self.propeller_foil_tip_name,
+                        propeller_c_root = self.propeller_c_root,
+                        propeller_c_tip = self.propeller_c_tip,
+                        propeller_t_factor_root = self.propeller_t_factor_root,
+                        propeller_t_factor_tip = self.propeller_t_factor_tip,
+                        propeller_twist = self.propeller_twist,
+                        mesh_deflection = self.mesh_deflection
                          )
+
     @Part
     def pushing_propeller(self):
         return Propeller(rotor_radius=self.rotor_radius,
@@ -372,19 +381,20 @@ class Aircraft(GeomBase):
 
     @Part
     def h_tail_right(self):
-        return LiftingSurface(
-            c_root=self.w_c_root / 1.5,
-            c_tip=self.w_c_tip / 2,
-            airfoil_root_name="b29root",
-            airfoil_tip_name="b29tip",
-            t_factor_root=0.9 * self.t_factor_root,
-            t_factor_tip=0.9 * self.t_factor_tip,
-            semi_span=self.w_semi_span / 2.5,
-            sweep=self.sweep + 10,
-            twist=0,
-            position=self.h_tail_position,
-            mesh_deflection=self.mesh_deflection
-        )
+        return LiftingSurface(pass_down="name",
+                              c_root=self.w_c_root / 1.5,
+                              c_tip=self.w_c_tip / 2,
+                              airfoil_root_name="b29root",
+                              airfoil_tip_name="b29tip",
+                              t_factor_root=0.9 * self.t_factor_root,
+                              t_factor_tip=0.9 * self.t_factor_tip,
+                              semi_span=self.w_semi_span / 2.5,
+                              sweep=self.sweep + 10,
+                              twist=0,
+                              position=self.h_tail_position,
+                              mesh_deflection=self.mesh_deflection,
+                              is_mirrored=True
+                              )
 
     @Part
     def h_tail_left(self):
@@ -398,38 +408,44 @@ class Aircraft(GeomBase):
     def right_lifting_lg(self):
         return LiftingLandingGear(lg_foil_root_name = self.lg_foil_root_name,
                                   position=translate(self.lifting_lg_position, 'z', -self.boom_position_fraction_long*self.w_semi_span*2),
-    lg_foil_tip_name = self.lg_foil_tip_name,
-    lg_c_root = self.lg_c_root,
-    lg_c_tip = self.lg_c_tip,
-    lg_t_factor_root = self.lg_t_factor_root,
-    lg_t_factor_tip = self.lg_t_factor_tip,
-    lg_twist = self.lg_twist,
-    mesh_deflection = self.mesh_deflection,
-    lg_semi_span  = self.lg_semi_span)
+                                  lg_foil_tip_name = self.lg_foil_tip_name,
+                                  lg_c_root = self.lg_c_root,
+                                  lg_c_tip = self.lg_c_tip,
+                                  lg_t_factor_root = self.lg_t_factor_root,
+                                  lg_t_factor_tip = self.lg_t_factor_tip,
+                                  lg_twist = self.lg_twist,
+                                  mesh_deflection = self.mesh_deflection,
+                                  lg_semi_span  = self.lg_semi_span)
+
     @Part
     def left_lifting_lg(self):
         return LiftingLandingGear(lg_foil_root_name = self.lg_foil_root_name,
                                   position=self.lifting_lg_position,
-    lg_foil_tip_name = self.lg_foil_tip_name,
-    lg_c_root = self.lg_c_root,
-    lg_c_tip = self.lg_c_tip,
-    lg_t_factor_root = self.lg_t_factor_root,
-    lg_t_factor_tip = self.lg_t_factor_tip,
-    lg_twist = self.lg_twist,
-    mesh_deflection = self.mesh_deflection,
-    lg_semi_span  = self.lg_semi_span)
+                                  lg_foil_tip_name = self.lg_foil_tip_name,
+                                  lg_c_root = self.lg_c_root,
+                                  lg_c_tip = self.lg_c_tip,
+                                  lg_t_factor_root = self.lg_t_factor_root,
+                                  lg_t_factor_tip = self.lg_t_factor_tip,
+                                  lg_twist = self.lg_twist,
+                                  mesh_deflection = self.mesh_deflection,
+                                  lg_semi_span  = self.lg_semi_span)
+
     @Part
     def left_lg(self):
         return LandingGear(leg_radius = self.leg_radius,
                            position=self.left_lg_position,
-        leg_height = self.leg_height,
-        rubber_radius = self.rubber_radius)
+                           leg_height = self.leg_height,
+                           rubber_radius = self.rubber_radius)
+
+
     @Part
     def right_lg(self):
         return LandingGear(leg_radius = self.leg_radius,
                            position=translate(self.left_lg_position, 'y', -self.boom_position_fraction_long*self.w_semi_span*2),
-        leg_height = self.leg_height,
-        rubber_radius = self.rubber_radius)
+                            leg_height = self.leg_height,
+                            rubber_radius = self.rubber_radius)
+
+
     @Part
     def right_winglet(self):
         return Winglet(winglet_c_root = self.w_c_tip,

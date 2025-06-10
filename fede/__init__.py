@@ -8,4 +8,6 @@ from .propeller import Propeller
 from .landing_gear import LandingGear
 from .landing_gear import LiftingLandingGear
 from .winglet import Winglet
+#from .section import Section
+from .convAera import Aircraft
 

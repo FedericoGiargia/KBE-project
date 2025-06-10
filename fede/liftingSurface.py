@@ -1,21 +1,17 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2016 ParaPy Holding B.V.
-#
-# This file is subject to the terms and conditions defined in
-# the license agreement that you have received with this source code
-#
-# THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-# KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-# PURPOSE.
-
 from math import radians, tan
 from kbeutils.geom import cst_airfoil_coordinates
 from parapy.geom import LoftedSolid, translate, rotate, FittedCurve
 from parapy.core import Input, Attribute, Part
+from parapy.geom import GeomBase, ScaledCurve
+from parapy.core import Input, Attribute, Part, DynamicType, child
+from parapy.core.validate import AdaptedValidator
+import kbeutils.avl as avl
+from kbeutils.geom import Naca5AirfoilCurve, Naca4AirfoilCurve
+from parapy.geom import GeomBase, LoftedShell, MirroredSurface, rotate
 from fede import Airfoil, Frame
+from fede.section import Section
+
+
 
 class LiftingSurface(LoftedSolid):  # note use of loftedSolid as superclass
 
@@ -35,6 +31,15 @@ class LiftingSurface(LoftedSolid):  # note use of loftedSolid as superclass
     inst_angle: float = Input(0)
 
     mesh_deflection: float = Input(1e-4)
+    is_mirrored: bool = Input()
+    airfoil_name_avl: str = Input("2412")
+
+    # Control surfaces
+    control_name: str = Input(None)
+    control_hinge_loc: float = Input(None)
+    duplicate_sign: int = Input(1)
+
+
 
     # required slot for the superclass LoftedSolid
     # (usually an @Input, but we're turning it into an @Attribute)
@@ -80,6 +85,72 @@ class LiftingSurface(LoftedSolid):  # note use of loftedSolid as superclass
                        thickness_factor=self.t_factor_tip,
                        position=self.tip_position,  # apply sweep
                        mesh_deflection=self.mesh_deflection)
+
+    @Attribute
+    def aspect_ratio(self):
+        return (self.half_span * 2) / self.c_root
+
+    @Attribute
+    def taper_ratio(self):
+        return self.c_tip / self.c_root
+
+    @Attribute
+    def chords(self):
+        root = self.c_root
+        tip = self.c_tip
+        return root, tip
+
+    @Attribute
+    def planform_area(self):
+        return (self.half_span * 2) ** 2 / self.aspect_ratio
+
+    @Attribute
+    def half_span(self):
+        return self.semi_span
+
+
+
+    @Attribute
+    def section_positions(self):
+        root = self.position
+        tip = self.tip_position
+        return root, tip
+
+    @Attribute
+    def chord_root(self):
+        return self.chords[0]
+
+    @Attribute
+    def mac(self):
+        return 2 / 3 * self.chord_root * (1 + self.taper_ratio + self.taper_ratio ** 2) / (1 + self.taper_ratio)
+
+    @Part
+    def sections(self):
+        return Section(quantify=len(self.chords),
+                        airfoil_name=self.airfoil_name_avl,
+                        chord=self.chords[child.index],
+                        position=self.section_positions[child.index],
+
+                        control_name=self.control_name,
+                        control_hinge_loc=self.control_hinge_loc,
+                        duplicate_sign=self.duplicate_sign
+                        )
+
+
+    @Part
+    def avl_surface(self):
+        """Defines an AVL surface, based on the section camberlines"""
+        return avl.Surface(name=self.name,
+                            n_chordwise=12,
+                            chord_spacing=avl.Spacing.cosine,
+                            n_spanwise=20,
+                            span_spacing=avl.Spacing.cosine,
+                            y_duplicate=self.position.point[1] if self.is_mirrored else None,
+                            sections=[section.avl_section
+                                      for section in self.sections])
+
+
+
 
 if __name__ == '__main__':
     from parapy.gui import display
