@@ -13,6 +13,7 @@
 
 from parapy.geom import LoftedSolid, LoftedSurface, Circle, Vector, translate
 from parapy.core import Input, Attribute, Part, child, widgets
+from .liftingSurface import LiftingSurface
 
 
 class Booms(LoftedSolid):
@@ -108,6 +109,81 @@ class Booms(LoftedSolid):
                            mesh_deflection=self.mesh_deflection,
                            hidden=not(__name__ == '__main__'))
 """
+########## AVL ###############
+
+    @Part
+    def avl_boom(self):
+        return LiftingSurface(name="boom_avl",
+                              airfoil_root_name="0000",
+                              airfoil_tip_name="0000",
+                              c_root=self.booms_length,
+                              c_tip=self.booms_length,
+                              semi_span=self.booms_radius ,
+                              sweep=0,
+                              twist=0,
+                              dihedral=0,
+                              inst_angle=0,
+                              position=translate(self.position,'x',-self.booms_radius/2),
+                              mesh_deflection=self.mesh_deflection,
+                              is_mirrored=False)
+
+    @Part
+    def avl_booms_vert(self):
+        return LiftingSurface(name="boom_avl",
+                              airfoil_root_name="0000",
+                              airfoil_tip_name="0000",
+                              c_root=self.booms_length,
+                              c_tip=self.booms_length,
+                              semi_span=self.booms_radius,
+                              sweep=0,
+                              twist=0,
+                              dihedral=0,
+                              inst_angle=0,
+                              position=translate(self.position.rotate90('x'),'y', -self.booms_radius/2),
+                              mesh_deflection=self.mesh_deflection,
+                              is_mirrored=False,
+                              )
+
+
+    @Part
+    def avl_boom_mirrored(self):
+        return LiftingSurface(name="boom_avl",
+                              airfoil_root_name="0000",
+                              airfoil_tip_name="0000",
+                              c_root=self.booms_length,
+                              c_tip=self.booms_length,
+                              semi_span=self.booms_radius,
+                              sweep=0,
+                              twist=0,
+                              dihedral=0,
+                              inst_angle=0,
+                              position=translate(translate(self.position, 'x', self.booms_radius / 2)
+                                                 ,'y',-self.position.point[1]*2),
+                              mesh_deflection=self.mesh_deflection,
+                              is_mirrored=False)
+
+    @Part
+    def avl_boom_vert_mirrored(self):
+        return LiftingSurface(name="boom_avl",
+                              airfoil_root_name="0000",
+                              airfoil_tip_name="0000",
+                              c_root=self.booms_length,
+                              c_tip=self.booms_length,
+                              semi_span=self.booms_radius,
+                              sweep=0,
+                              twist=0,
+                              dihedral=0,
+                              inst_angle=0,
+                              position=translate(translate(self.position.rotate90('x'), 'y', -self.booms_radius / 2)
+                                                 ,'z',self.position.point[1]*2),
+                              mesh_deflection=self.mesh_deflection,
+                              is_mirrored=False,
+                              )
+
+
+##############################
+
+
 
 if __name__ == '__main__':
     from parapy.gui import display

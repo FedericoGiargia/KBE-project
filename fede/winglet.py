@@ -2,7 +2,7 @@ from math import radians, tan
 from kbeutils.geom import cst_airfoil_coordinates
 from parapy.geom import LoftedSolid, translate, rotate, FittedCurve, GeomBase
 from parapy.core import Input, Attribute, Part, child
-from fede import Airfoil, Frame, liftingSurface
+from fede import Airfoil, Frame, LiftingSurface
 class Winglet(GeomBase):
     """I will define both a loftedsolid, and the geometry for luis so some wings that move defined as the loft between 5 stations"""
     name: str = Input()
@@ -38,6 +38,24 @@ class Winglet(GeomBase):
     def lofted_winglet(self):
         return LoftedSolid(profiles = self.airfoil_profiles,
                            ruled = True,)
+
+
+########## AVL ##########
+'''
+    @Part
+    def lifting_component(self):
+        return LiftingSurface(name=self.airfoil_names[0],
+                                c_root=self.winglet_c_root,
+                                c_tip=1,
+                                sweep = self.winglet_sweep,
+                                semi_span=self.semi_span,
+                                position=self.position.rotate90('x'),
+                                is_mirrored=False)
+
+'''
+#########################
+
+
 
 
 if __name__ == "__main__":

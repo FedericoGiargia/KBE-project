@@ -7,6 +7,7 @@ import pandas as pd
 from setuptools.command.rotate import rotate
 
 from fede import Frame
+from .liftingSurface import LiftingSurface
 import matplotlib.pyplot as plt
 from kbeutils.data import airfoils
 class Fuselage(GeomBase): # remember, we want to use the parapy environment, NO RANDOM TUTORIALS
@@ -90,6 +91,47 @@ class Fuselage(GeomBase): # remember, we want to use the parapy environment, NO 
         return Box(width = self.fu_side/3, height = self.fu_height/3, length = self.fu_distance/3, color = "Black", position = translate(self.position.rotate90('-z').rotate90('y'), '-x', -self.fu_side/2 +self.fu_side/3, 'z', -self.fu_height/6, 'y', self.fu_distance/8))
 
 
+############## AVL ############
+
+    @Part
+    def avl_fuselage(self):
+        return LiftingSurface(name="fuselage_avl",
+                              airfoil_root_name="0000",
+                              airfoil_tip_name="0000",
+                              c_root=self.fu_distance,
+                              c_tip=self.fu_distance,
+                              semi_span=self.fu_height / 2,
+                              sweep=0,
+                              twist=0,
+                              dihedral=0,
+                              inst_angle=0,
+                              position=self.position,
+                              mesh_deflection=self.mesh_deflection,
+                              is_mirrored=True)
+
+    @Part
+    def avl_fuselage_vert(self):
+        return LiftingSurface(name="fuselage_avl",
+                              airfoil_root_name="0000",
+                              airfoil_tip_name="0000",
+                              c_root=self.fu_distance,
+                              c_tip=self.fu_distance,
+                              semi_span=self.fu_side,
+                              sweep=0,
+                              twist=0,
+                              dihedral=0,
+                              inst_angle=0,
+                              position=translate(self.position.rotate90('x'),'y',-self.fu_side/2),
+                              mesh_deflection=self.mesh_deflection,
+                              is_mirrored=False,
+                              )
+
+
+
+################################
+
+
+###############################
 
 # 3) display solo se __main__
 if __name__ == "__main__":

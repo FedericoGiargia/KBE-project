@@ -46,7 +46,7 @@ class Section(GeomBase):
     def cst_coeffs_lower(self):
         """Lower CST Coefficients of the airfoil"""
         return self.airfoil.cst_lower
-    @Part
+    @Part(in_tree=False)
     def curve(self):
         """The actual airfoil curve"""
         return ScaledCurve(self.airfoil,

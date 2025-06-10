@@ -1,4 +1,6 @@
 from fede import Airfoil, Frame, LiftingSurface
+import kbeutils.avl as avl
+from fede.section import Section
 from math import radians, tan
 from parapy.geom import *
 from parapy.core import *
@@ -13,6 +15,7 @@ class LiftingLandingGear(GeomBase):
     mesh_deflection: float = Input(1e-4)
     lg_semi_span : float = Input(2)
     box_height = 30
+    lg_dihedral: float = Input(0)
 
     @Attribute
     def tip_positioning(self):
@@ -71,6 +74,21 @@ class LiftingLandingGear(GeomBase):
         return SubtractedSolid(shape_in = self.lg_lofted_ruled, tool = self.fixed_lg, color = 'green')
 
 
+########## AVL ##########
+
+    @Part
+    def lifting_component(self):
+        return LiftingSurface(name=self.lg_foil_root_name,
+                                c_root=self.lg_c_root,
+                                c_tip=self.lg_c_tip,
+                                sweep = 0,
+                                semi_span=self.lg_semi_span,
+                                position=self.lg_root_airfoil.position,
+                                dihedral = self.lg_dihedral,
+                                is_mirrored=False)
+
+
+#########################
 
 
 class LandingGear(GeomBase):

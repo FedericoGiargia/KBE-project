@@ -459,6 +459,11 @@ class Aircraft(GeomBase):
 
 
 
+
+
+
+
+
 if __name__ == '__main__':
     from parapy.gui import display
     ac = Aircraft(label="aircraft",

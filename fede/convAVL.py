@@ -1,7 +1,6 @@
 from kbeutils import avl
 from parapy.gui import display
 from parapy.core import Input, Part, Attribute, child
-
 from fede.convAera import Aircraft
 
 
@@ -46,6 +45,10 @@ class AircraftWithAnalysis(Aircraft):
                            configuration=self.avl_configurations[child.index],
                            case_settings=self.case_settings,
                            label='Mach='+str(self.mach_list[child.index]))
+
+
+
+
 
 
 class AvlAnalysis(avl.Interface):
