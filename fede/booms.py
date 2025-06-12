@@ -111,7 +111,7 @@ class Booms(LoftedSolid):
 """
 ########## AVL ###############
 
-    @Part
+    @Part(in_tree=True)
     def avl_boom(self):
         return LiftingSurface(name="boom_avl",
                               airfoil_root_name="0000",
@@ -127,7 +127,7 @@ class Booms(LoftedSolid):
                               mesh_deflection=self.mesh_deflection,
                               is_mirrored=False)
 
-    @Part
+    @Part(in_tree=True)
     def avl_booms_vert(self):
         return LiftingSurface(name="boom_avl",
                               airfoil_root_name="0000",
@@ -145,7 +145,7 @@ class Booms(LoftedSolid):
                               )
 
 
-    @Part
+    @Part(in_tree=True)
     def avl_boom_mirrored(self):
         return LiftingSurface(name="boom_avl",
                               airfoil_root_name="0000",
@@ -162,7 +162,7 @@ class Booms(LoftedSolid):
                               mesh_deflection=self.mesh_deflection,
                               is_mirrored=False)
 
-    @Part
+    @Part(in_tree=True)
     def avl_boom_vert_mirrored(self):
         return LiftingSurface(name="boom_avl",
                               airfoil_root_name="0000",

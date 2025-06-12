@@ -16,6 +16,8 @@ class Section(GeomBase):
     control_name: str = Input(None)
     control_hinge_loc: float = Input(None)
     duplicate_sign: int = Input(1)
+
+
     @Attribute
     def avl_controls(self):
         """configure what (if anything) AVL can modify about this section"""
@@ -26,6 +28,7 @@ class Section(GeomBase):
                                 duplicate_sign=self.duplicate_sign)]
         else:
             return []
+
     @Part
     def airfoil(self):
         return DynamicType(type=Naca5AirfoilCurve if len(self.airfoil_name) == 5

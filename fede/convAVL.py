@@ -4,13 +4,10 @@ from parapy.core import Input, Part, Attribute, child
 from fede.convAera import Aircraft
 
 
-class AircraftWithAnalysis(Aircraft):
-    # This class inherits from Aircraft and adds two parts
-    # Not that they don't replace the existing AVL components that the Aircraft
-    # class already has, but instead adds new ones.
-    # So the single-point analysis at cruise conditions will still work ─ but
-    # this extended class implements some of the same functionality in a
-    # different way.
+class ConvAnalysis(Aircraft):
+     # This class includes all the additional parameters
+     # for the AVL analyis of the ConvAera Drone.
+
 
     case_settings: list[tuple[str, dict]] = Input()
 
@@ -68,6 +65,7 @@ class AvlAnalysis(avl.Interface):
 
     # the full set of results is accessible at self.results (inherited from avl.Interface, and visible as an attribute
     # to the root object, in the tree). The Attribute below just extracts some of them to make them easier to digest.
+
     @Attribute
     def l_over_d(self):
         """lift/drag ratio from AVL analysis. This is a dictionary of the L/D
@@ -76,22 +74,33 @@ class AvlAnalysis(avl.Interface):
         return {result['Name']: result['Totals']['CLtot'] / result['Totals']['CDtot']
                 for case_name, result in self.results.items()}
 
+    @Attribute
+    def total_lift(self):
+        """Total lift of the convAera drone for each of the given maneuvers"""
+        return {result['Name']: result['Totals']['CLtot']
+                for case_name, result in self.results.items()}
+
 
 if __name__ == '__main__':
 
     cases = [('fixed_aoa', {'alpha': 3}),  # aircraft flown at constant angle of attack
              ('fixed_cl', {'alpha': avl.Parameter(name='alpha', value=0.3, setting='CL')}),
-             # aircraft is flown at a given Cl. AVL will fi nd the necessary angle of attack
+             # aircraft is flown at a given Cl. AVL will find the necessary angle of attack
              ('trimmed', {'alpha': 3,  # aircraft is trimmed (Cm=0) at an angle of attack of 3
                           # degrees using the elevator
-                          'elevator': avl.Parameter(name='elevator',
-                                                    value=0.0,
-                                                    setting='Cm')
+                          'elevator': avl.Parameter(name='elevator', value=0.0, setting='Cm')
                           }
+              ),
+             ('roll', {
+                 'alpha': 3,
+                 'aileron': avl.Parameter(name='aileron',
+                                          value=5.0,
+                                          setting='aileron')
+                      }
               )
              ]
 
-    aca = AircraftWithAnalysis(label="aircraft",
+    ca = ConvAnalysis(label="aircraft",
                                fu_side=3.5,
                                fu_height=5,
                                fu_distance=50,
@@ -111,4 +120,4 @@ if __name__ == '__main__':
                                )  # the 3 cases above are configured to be processed by AVL on demand
 
 
-    display(aca)
+    display(ca)

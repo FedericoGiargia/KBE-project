@@ -2,12 +2,14 @@ from parapy.geom import Cube, Solid
 import os
 from parapy.webgui import layout, mui, viewer
 from parapy.webgui.app_bar import AppBar
-from parapy.webgui.core import Component, NodeType, State, VState, get_assets_dir, get_asset_url
+from parapy.webgui.core import Component, NodeType, State, VState, get_assets_dir, get_asset_url, display
 from parapy.webgui.core.actions import download_file
 from parapy.exchange import STEPWriter
+from parapy.geom import GeomBase
+from parapy.webgui.data_tree import DataTree
 
 from fede.convAera import Aircraft
-
+from fede.convAVL import ConvAnalysis
 
 
 Aera =  Aircraft(label="aircraft",
@@ -28,6 +30,10 @@ Aera =  Aircraft(label="aircraft",
 
 
 
+
+
+
+
 # Everything below is GUI
 
 
@@ -41,22 +47,75 @@ class App(Component):
                 AppBar(title="ConvAera"
                        ),
                 layout.Split(height='100%',
-                             weights=[0, 0, 1]
+                             weights=[0, 0, 0, 1, 0, 0]
                              )[
                     InputsPanel,
                     mui.Divider(orientation='vertical'),
+
+                    mui.Paper(sx={'p': 2, 'width': '300px', 'overflow': 'auto', 'maxHeight': '100%'})[
+                        DataTree(
+                            items=ITEMS,
+                            controls=CONTROLS,
+                            menuItems=MENU_ITEMS,
+                            groups=GROUPS,
+                        )
+                    ],
                     viewer.Viewer(objects=Aera,
-                         style={'backgroundColor': 'gray'}
+                                  style={'backgroundColor': 'gray'}
                                   ),
+                    mui.Divider(orientation='vertical'),
+                    viewer.Viewer(objects=Aera, style={'backgroundColor': 'gray'})
+
                 ]
             ]
         )
+
+# Tree view builder
+
+def build_data_items(obj: GeomBase, visited=None):
+    if visited is None:
+        visited = set()
+    obj_id = id(obj)
+    # Prevent infinite loops
+    if obj_id in visited:
+        # Fallback label when .label is None
+        base_label = getattr(obj, 'label', None) or obj.__class__.__name__
+        return {'id': str(obj_id), 'label': f"{base_label} (cycle)"}
+
+    visited.add(obj_id)
+    # Determine label, fallback to class name if None
+    base_label = getattr(obj, 'label', None) or obj.__class__.__name__
+    item = {'id': str(obj_id), 'label': base_label}
+
+    # Use children property (parapy Base.children)
+    children = []
+    for child in getattr(obj, 'children', []):
+        if isinstance(child, GeomBase):
+            children.append(child)
+
+    if children:
+        # Recursively build child entries
+        item['children'] = [build_data_items(child, visited) for child in children]
+    return item
+
+# Prepare tree data
+ITEMS = [build_data_items(Aera)]
+# Optionally define these dicts for per-item controls/menus/groups
+CONTROLS = {}
+MENU_ITEMS = {}
+GROUPS = {}
+
+
+
+
 
 class InputsPanel(Component):
     value = State(Aera.wing_dihedral) # Initial value for a variable configuration
     download_start = State(False) # State of download for the popup
     download_finish = State(False)
 
+
+    # These are the values for the slider dots
     marks = [
         {
             'value': -10,
@@ -116,9 +175,16 @@ class InputsPanel(Component):
                 mui.DialogActions[
                     mui.Button(onClick=self.handle_close)['OK']
                 ]
-            ]
+            ],
+            viewer.Viewer(
+                id="myViewer",
+                objects=Aera,  # your Aircraft instance
+                style={"backgroundColor": "gray"},
+            )
 
-        ],
+
+        ]
+
 
 
 
@@ -167,6 +233,8 @@ class InputsPanel(Component):
 
     def handle_close(self, evt):
         self.download_finish = False
+
+
 
 
 if __name__ == "__main__":

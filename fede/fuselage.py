@@ -93,7 +93,7 @@ class Fuselage(GeomBase): # remember, we want to use the parapy environment, NO 
 
 ############## AVL ############
 
-    @Part
+    @Part(in_tree=True)
     def avl_fuselage(self):
         return LiftingSurface(name="fuselage_avl",
                               airfoil_root_name="0000",
@@ -109,7 +109,7 @@ class Fuselage(GeomBase): # remember, we want to use the parapy environment, NO 
                               mesh_deflection=self.mesh_deflection,
                               is_mirrored=True)
 
-    @Part
+    @Part(in_tree=True)
     def avl_fuselage_vert(self):
         return LiftingSurface(name="fuselage_avl",
                               airfoil_root_name="0000",

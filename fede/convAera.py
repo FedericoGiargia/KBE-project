@@ -148,6 +148,7 @@ class Aircraft(GeomBase):
     @Attribute
     def rotor_height(self):
         return 0.2 * self.propeller_c_root  # consider replacing with something done with the thickness
+
     @Attribute
     def pusher_propeller_position(self):
         "very good example on what NOT to do!! this changes the RF"
@@ -251,7 +252,10 @@ class Aircraft(GeomBase):
                 position=self.wing_position,
                 dihedral = self.wing_dihedral,
                 mesh_deflection=self.mesh_deflection,
-                is_mirrored=True
+                is_mirrored=True,
+                control_name="aileron",
+                control_hinge_loc=0.8,
+                duplicate_sign=-1
                )
 
     @Attribute
@@ -270,20 +274,23 @@ class Aircraft(GeomBase):
     @Part
     def vert_tail(self):
         return LiftingSurface(
-            pass_down="name",
-            c_root=self.w_c_root,
-            c_tip=self.w_c_root * self.vt_taper,
-            airfoil_root_name="b29root",
-            airfoil_tip_name="b29tip",
-            t_factor_root=0.9 * self.t_factor_root,
-            t_factor_tip=0.9 * self.t_factor_tip,
-            semi_span=self.w_semi_span / 3,
-            sweep=45,
-            twist=0,
-            position=self.v_tail_position,
-            mesh_deflection=self.mesh_deflection,
-            is_mirrored=False
-        )
+                                pass_down="name",
+                                c_root=self.w_c_root,
+                                c_tip=self.w_c_root * self.vt_taper,
+                                airfoil_root_name="b29root",
+                                airfoil_tip_name="b29tip",
+                                t_factor_root=0.9 * self.t_factor_root,
+                                t_factor_tip=0.9 * self.t_factor_tip,
+                                semi_span=self.w_semi_span / 3,
+                                sweep=45,
+                                twist=0,
+                                position=self.v_tail_position,
+                                mesh_deflection=self.mesh_deflection,
+                                is_mirrored=False,
+                                control_name="rudder",
+                                control_hinge_loc=0.8
+                                )
+
     @Part
     def left_boom(self):
         return Booms(booms_radius=self.booms_radius,
@@ -393,7 +400,9 @@ class Aircraft(GeomBase):
                               twist=0,
                               position=self.h_tail_position,
                               mesh_deflection=self.mesh_deflection,
-                              is_mirrored=True
+                              is_mirrored=True,
+                              control_name="elevator",
+                              control_hinge_loc=0.8
                               )
 
     @Part
