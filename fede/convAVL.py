@@ -9,8 +9,12 @@ class ConvAnalysis(Aircraft):
      # for the AVL analyis of the ConvAera Drone.
 
 
-    case_settings: list[tuple[str, dict]] = Input()
+    alpha_avl: float = Input(3) # Angle of attack for the AVL analysis
+    cl_fixed_avl: float = Input(0.3) # Cl of the whole aircraft
+    aileron_deflection_avl: float = Input(5) # Degrees
 
+    case_settings: list[tuple[str, dict]] = Input([('fixed_aoa', {'alpha': 3}),
+                                                    ])
     mach_list: list[float] = Input([]) # List of Mach numbers for analysis
 
     @Part
@@ -117,7 +121,7 @@ if __name__ == '__main__':
                                mesh_deflection=0.01,
                                mach_list=[0.5, 0.3, 0.2],
                                case_settings=cases
-                               )  # the 3 cases above are configured to be processed by AVL on demand
+                               )
 
 
     display(ca)

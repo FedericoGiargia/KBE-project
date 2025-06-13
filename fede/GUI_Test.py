@@ -11,8 +11,8 @@ from parapy.webgui.data_tree import DataTree
 from fede.convAera import Aircraft
 from fede.convAVL import ConvAnalysis
 
-
-Aera =  Aircraft(label="aircraft",
+# Instantiate Objects
+Aera =  ConvAnalysis(label="aircraft",
                    fu_side=3.5,
                    fu_height = 5,
                    fu_distance = 50,
@@ -27,8 +27,6 @@ Aera =  Aircraft(label="aircraft",
                    booms_length=60,
                    booms_sections = [100, 100, 100, 100, 100],
                    mesh_deflection=0.01)
-
-
 
 
 
@@ -100,7 +98,6 @@ def build_data_items(obj: GeomBase, visited=None):
 
 # Prepare tree data
 ITEMS = [build_data_items(Aera)]
-# Optionally define these dicts for per-item controls/menus/groups
 CONTROLS = {}
 MENU_ITEMS = {}
 GROUPS = {}
@@ -150,7 +147,7 @@ class InputsPanel(Component):
             layout.SlotFloatField(Aera, 'booms_length', label='Length Booms'),
             layout.SlotFloatField(Aera, 'sweep', label='Sweep'),
             mui.TextField(value=Aera.rotor_radius, label='Rotor Radius'),
-            mui.Typography("Wing Dihedral (°)"),
+            mui.Typography('Wing Dihedral (°)'),
             mui.Slider(value=self.value,
                        onChange=self.handle_change,
                        marks=self.marks,
