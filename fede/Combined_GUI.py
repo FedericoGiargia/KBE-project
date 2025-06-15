@@ -488,24 +488,48 @@ class ReportGenerator(Component):
         ]
 
     def generate_report(self, evt):
-        print("hello")
+
 
         # Check if the files are available for the report generation
 
-        if not os.path.isfile(os.path.join('assets_convAera', 'm_1_geometry.jpg')):
+        if not os.path.isfile(os.path.join('assets_convAera', 'M_1-geometry.jpeg')):
             print("m_1_geometry.jpg not found in assets_convAera. Making plots.")
             self.save_geom_plot(evt)
 
-        if not os.path.isfile(os.path.join('assets_convAera', 'm_1_geometry.jpg')):
-            print("m_1_geometry.jpg not found in assets_convAera. Making plots")
+        if not os.path.isfile('assets_convAera/M_1-trefftz-0.jpeg'):
+            print("m_1_trefftz-0.jpg not found in assets_convAera. Making plots")
             self.save_tref_plot(evt)
 
-        if not os.path.isfile(os.path.join('assets_convAera', 'm_1_geometry.jpg')):
-            print("m_1_geometry.jpg not found in assets_convAera. Computing results")
+        if not Aera.avl_analyses[0]:
+            print("Results not found. Computing results")
             Aera.avl_analyses[0].l_over_d()
 
+        conf = ReportConfig(
+            filename='convAera_report.pdf',
+            title='ConvAera AVL Analysis Results',
+
+            parameters_template=(
+                'The analysis was run at a fixed angle of attack (AoA) of {AoA} degrees and then trimmed for '
+                'zero pitching moment. Computed values: L/D_fixed={L/D (fixed AoA)} and total lift={Total Lift (fixed AoA)}.'
+            ),
+            data_object={
+                'AoA': 5,
+                'L/D (fixed AoA)': 8.2,
+                'Total Lift (fixed AoA)': 0.45,
+                'L/D (trimmed)': 7.8,
+                'Total Lift (trimmed)': 0.42,
+            },
+            image_files=['assets_convAera/M_1-geometry.jpeg', 'assets_convAera/M_1-trefftz-0.jpeg'],
+            image_captions=['Geometry of the model.', 'Trefftz plane distribution.'],
+            output_dir='assets_convAera'
+        )
+
+        create_pdf_report(conf)
 
 
+
+
+# Helper functions to compute the missing elements
 
     def save_geom_plot(self, evt):
 
