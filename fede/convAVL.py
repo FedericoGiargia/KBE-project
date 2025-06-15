@@ -50,8 +50,6 @@ class ConvAnalysis(Aircraft):
 
 
 
-
-
 class AvlAnalysis(avl.Interface):
     """ This classs handles the AVL analysis.
     Since it inherits from AVL, it already comes with most of the prerequisites
@@ -85,6 +83,9 @@ class AvlAnalysis(avl.Interface):
                 for case_name, result in self.results.items()}
 
 
+
+
+
 if __name__ == '__main__':
 
     cases = [('fixed_aoa', {'alpha': 3}),  # aircraft flown at constant angle of attack
@@ -103,6 +104,7 @@ if __name__ == '__main__':
                       }
               )
              ]
+
 
     ca = ConvAnalysis(label="aircraft",
                                fu_side=3.5,
